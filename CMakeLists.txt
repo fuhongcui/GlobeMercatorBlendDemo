@@ -14,10 +14,6 @@ aux_source_directory(src MAIN_SRC_FILE)
 aux_source_directory(external/glad/src MAIN_SRC_FILE)
 aux_source_directory(external/stb_image/src MAIN_SRC_FILE)
 
-add_executable(GlobeMercatorBlendDemo ${MAIN_SRC_FILE}
-    src/GlobeProjection.h
-    src/ShaderManager.h
-    src/TileRenderer.h
-    src/Application.h)
+add_executable(GlobeMercatorBlendDemo ${MAIN_SRC_FILE})
 
 target_link_libraries(GlobeMercatorBlendDemo OpenGL::GL glfw ${CMAKE_DL_LIBS})
