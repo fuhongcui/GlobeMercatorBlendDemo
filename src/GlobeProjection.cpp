@@ -1,6 +1,8 @@
 #include "GlobeProjection.h"
 
 #include <algorithm>
+#include <cmath>
+#include <glm/gtc/matrix_transform.hpp>
 
 float GlobeProjection::getCameraDistance() const
 {
@@ -21,20 +23,23 @@ float GlobeProjection::wrapLon(float lon) const
     return lon;
 }
 
-Math::Mat4 GlobeProjection::calculateGlobeMatrix(float aspect) const
+glm::mat4 GlobeProjection::calculateGlobeMatrix(float aspect) const
 {
     float dist = getCameraDistance();
     float globeRadius = getGlobeRadius();
     
-    Math::Mat4 proj = Math::perspective(Constants::PI / 4.0f, aspect, 0.01f, 100.0f);
+    glm::mat4 proj = glm::perspective(Constants::PI / 4.0f, aspect, 0.01f, 100.0f);
     
     float wrappedLon = wrapLon(centerLon);
-    Math::Mat4 view = Math::translate(0, 0, -dist) * Math::rotateX(centerLat * Constants::PI / 180.0f) * Math::rotateY(-wrappedLon * Constants::PI / 180.0f) * Math::scale(globeRadius, globeRadius, globeRadius);
+    glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, -dist))
+                     * glm::rotate(glm::mat4(1.0f), centerLat * Constants::PI / 180.0f, glm::vec3(1.0f, 0.0f, 0.0f))
+                     * glm::rotate(glm::mat4(1.0f), -wrappedLon * Constants::PI / 180.0f, glm::vec3(0.0f, 1.0f, 0.0f))
+                     * glm::scale(glm::mat4(1.0f), glm::vec3(globeRadius, globeRadius, globeRadius));
     
     return proj * view;
 }
 
-Math::Mat4 GlobeProjection::calculateMercatorMatrix(int tileX, int tileY, int tileZ, int wrap, float aspect) const
+glm::mat4 GlobeProjection::calculateMercatorMatrix(int tileX, int tileY, int tileZ, int wrap, float aspect) const
 {
     float dist = getCameraDistance();
     
@@ -53,20 +58,20 @@ Math::Mat4 GlobeProjection::calculateMercatorMatrix(int tileX, int tileY, int ti
     float worldScale = 2.0f * pow(2.0f, zoom);
     
     // Model 矩阵：缩放 -> 居中 -> tile 偏移 -> tile 缩放
-    Math::Mat4 model = Math::scale(worldScale, -worldScale, 1.0f)  // Y 轴翻转，缩放
-                       * Math::translate(-centerMercX, -centerMercY, 0)  // 居中到 center
-                       * Math::translate(tileOffsetX, tileOffsetY, 0)    // tile 偏移
-                       * Math::scale(tileScaleInv / Constants::TILE_EXTENT, tileScaleInv / Constants::TILE_EXTENT, 1);
+    glm::mat4 model = glm::scale(glm::mat4(1.0f), glm::vec3(worldScale, -worldScale, 1.0f))  // Y 轴翻转，缩放
+                       * glm::translate(glm::mat4(1.0f), glm::vec3(-centerMercX, -centerMercY, 0.0f))  // 居中到 center
+                       * glm::translate(glm::mat4(1.0f), glm::vec3(tileOffsetX, tileOffsetY, 0.0f))    // tile 偏移
+                       * glm::scale(glm::mat4(1.0f), glm::vec3(tileScaleInv / Constants::TILE_EXTENT, tileScaleInv / Constants::TILE_EXTENT, 1.0f));
     
-    Math::Mat4 view = Math::translate(0, 0, -dist);
-    Math::Mat4 proj = Math::perspective(Constants::PI / 4.0f, aspect, 0.01f, 100.0f);
+    glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, -dist));
+    glm::mat4 proj = glm::perspective(Constants::PI / 4.0f, aspect, 0.01f, 100.0f);
     return proj * view * model;
 }
 
-Math::Vec4 GlobeProjection::calculateTileMercatorCoords(int tileX, int tileY, int tileZ, int wrap) const
+glm::vec4 GlobeProjection::calculateTileMercatorCoords(int tileX, int tileY, int tileZ, int wrap) const
 {
     float numTiles = pow(2.0f, tileZ);
-    return Math::Vec4(
+    return glm::vec4(
         (tileX + wrap * numTiles) / numTiles,
         tileY / numTiles,
         1.0f / numTiles / Constants::TILE_EXTENT,
@@ -114,7 +119,7 @@ int GlobeProjection::getWrapForTile(int tileX, int tileY, int tileZ) const
     return 0;
 }
 
-Math::Vec4 GlobeProjection::calculateClippingPlane() const
+glm::vec4 GlobeProjection::calculateClippingPlane() const
 {
     float dist = getCameraDistance();
     float globeRadius = getGlobeRadius();
@@ -176,6 +181,6 @@ Math::Vec4 GlobeProjection::calculateClippingPlane() const
     py /= len;
     pz /= len;
     
-    return Math::Vec4(px, py, pz, -tangentPlaneDistanceToC / len);
+    return glm::vec4(px, py, pz, -tangentPlaneDistanceToC / len);
 }
 

@@ -1,6 +1,7 @@
 #pragma once
 #include "GlobeProjection.h"
 #include "glad/glad.h"
+#include <glm/glm.hpp>
 #include <vector>
 
 class TileRenderer {
@@ -32,8 +33,8 @@ public:
     void render(const GlobeProjection& projection, float aspect);
     
 private:
-    void renderTilesForWrap(const GlobeProjection& projection, const Math::Mat4& globeMatrix, const Math::Vec4& clippingPlane, int wrap, float aspect, bool wireframe = false);
-    void renderSingleTile(const GlobeProjection& projection, const Math::Mat4& globeMatrix,const Math::Vec4& clippingPlane, int tileX, int tileY, int wrap, float aspect, bool wireframe = false);
+    void renderTilesForWrap(const GlobeProjection& projection, const glm::mat4& globeMatrix, const glm::vec4& clippingPlane, int wrap, float aspect, bool wireframe = false);
+    void renderSingleTile(const GlobeProjection& projection, const glm::mat4& globeMatrix,const glm::vec4& clippingPlane, int tileX, int tileY, int wrap, float aspect, bool wireframe = false);
     
     static std::vector<float> createTileMesh(int divisions = 32);
 };

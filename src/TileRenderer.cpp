@@ -1,6 +1,7 @@
 #include "TileRenderer.h"
 
 #include "ShaderManager.h"
+#include <glm/gtc/type_ptr.hpp>
 
 TileRenderer::TileRenderer() : numTiles(4), tileZ(2) {
     // 创建 tile 网格
@@ -43,8 +44,8 @@ void TileRenderer::render(const GlobeProjection& projection, float aspect)
     glBindVertexArray(VAO);
     
     // 计算裁剪平面（所有 tile 共享）
-    Math::Vec4 clippingPlane = projection.calculateClippingPlane();
-    Math::Mat4 globeMatrix = projection.calculateGlobeMatrix(aspect);
+    glm::vec4 clippingPlane = projection.calculateClippingPlane();
+    glm::mat4 globeMatrix = projection.calculateGlobeMatrix(aspect);
     
     // 纯 Mercator 模式：渲染所有 wrap
     if (projection.transition < 0.001f)
@@ -92,7 +93,7 @@ void TileRenderer::render(const GlobeProjection& projection, float aspect)
 #endif
 }
 
-void TileRenderer::renderTilesForWrap(const GlobeProjection& projection, const Math::Mat4& globeMatrix, const Math::Vec4& clippingPlane, int wrap, float aspect, bool wireframe)
+void TileRenderer::renderTilesForWrap(const GlobeProjection& projection, const glm::mat4& globeMatrix, const glm::vec4& clippingPlane, int wrap, float aspect, bool wireframe)
 {
     for (int tileY = 0; tileY < numTiles; tileY++)
     {
@@ -103,17 +104,17 @@ void TileRenderer::renderTilesForWrap(const GlobeProjection& projection, const M
     }
 }
 
-void TileRenderer::renderSingleTile(const GlobeProjection& projection, const Math::Mat4& globeMatrix,const Math::Vec4& clippingPlane, int tileX, int tileY, int wrap, float aspect, bool wireframe)
+void TileRenderer::renderSingleTile(const GlobeProjection& projection, const glm::mat4& globeMatrix,const glm::vec4& clippingPlane, int tileX, int tileY, int wrap, float aspect, bool wireframe)
 {
-    Math::Mat4 mercatorMatrix = projection.calculateMercatorMatrix(tileX, tileY, tileZ, wrap, aspect);
-    Math::Vec4 tileMercCoords = projection.calculateTileMercatorCoords(tileX, tileY, tileZ, wrap);
+    glm::mat4 mercatorMatrix = projection.calculateMercatorMatrix(tileX, tileY, tileZ, wrap, aspect);
+    glm::vec4 tileMercCoords = projection.calculateTileMercatorCoords(tileX, tileY, tileZ, wrap);
     
     // 设置 uniforms
-    glUniformMatrix4fv(u_projection_matrix, 1, GL_FALSE, globeMatrix.data());
-    glUniformMatrix4fv(u_projection_fallback_matrix, 1, GL_FALSE, mercatorMatrix.data());
-    glUniform4fv(u_projection_tile_mercator_coords, 1, tileMercCoords.data());
+    glUniformMatrix4fv(u_projection_matrix, 1, GL_FALSE, glm::value_ptr(globeMatrix));
+    glUniformMatrix4fv(u_projection_fallback_matrix, 1, GL_FALSE, glm::value_ptr(mercatorMatrix));
+    glUniform4fv(u_projection_tile_mercator_coords, 1, glm::value_ptr(tileMercCoords));
     glUniform1f(u_projection_transition, projection.transition);
-    glUniform4fv(u_projection_clipping_plane, 1, clippingPlane.data());
+    glUniform4fv(u_projection_clipping_plane, 1, glm::value_ptr(clippingPlane));
     
     // 颜色
     if (wireframe)

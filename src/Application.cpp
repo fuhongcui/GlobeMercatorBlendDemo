@@ -22,9 +22,9 @@ Application::~Application()
 void Application::run()
 {
     std::cout << "\n=== Globe-Mercator Transition Demo ===" << std::endl;
-    std::cout << "UP/DOWN: adjust transition (0=flat, 1=globe)" << std::endl;
+    std::cout << "UP/DOWN: pan latitude" << std::endl;
     std::cout << "LEFT/RIGHT: pan longitude" << std::endl;
-    std::cout << "W/S: pan latitude" << std::endl;
+    std::cout << "W/S: adjust transition (0=flat, 1=globe)" << std::endl;
     std::cout << "+/-: zoom" << std::endl;
     std::cout << "ESC: quit\n" << std::endl;
     
@@ -48,7 +48,7 @@ void Application::initGLFW()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     
-    window = glfwCreateWindow(windowWidth, windowHeight, "Globe Transition Test [UP/DOWN: transition, Arrows: pan, +/-: zoom]", nullptr, nullptr);
+    window = glfwCreateWindow(windowWidth, windowHeight, "Globe Transition Test [UP/DOWN: lat, LEFT/RIGHT: lon, W/S: transition, +/-: zoom]", nullptr, nullptr);
     if (!window)
     {
         std::cerr << "Failed to create window" << std::endl;
@@ -93,10 +93,10 @@ void Application::keyCallback(GLFWwindow* window, int key, int scancode, int act
         switch (key)
         {
         case GLFW_KEY_UP:
-            app->projection.transition = std::min(1.0f, app->projection.transition + 0.02f);
+            app->projection.centerLat = std::min(85.0f, app->projection.centerLat + 3);
             break;
         case GLFW_KEY_DOWN:
-            app->projection.transition = std::max(0.0f, app->projection.transition - 0.02f);
+            app->projection.centerLat = std::max(-85.0f, app->projection.centerLat - 3);
             break;
         case GLFW_KEY_LEFT:
             app->projection.centerLon -= 5;  // 不 wrap，允许连续旋转
@@ -105,10 +105,10 @@ void Application::keyCallback(GLFWwindow* window, int key, int scancode, int act
             app->projection.centerLon += 5;
             break;
         case GLFW_KEY_W:
-            app->projection.centerLat = std::min(85.0f, app->projection.centerLat + 3);
+            app->projection.transition = std::min(1.0f, app->projection.transition + 0.02f);
             break;
         case GLFW_KEY_S:
-            app->projection.centerLat = std::max(-85.0f, app->projection.centerLat - 3);
+            app->projection.transition = std::max(0.0f, app->projection.transition - 0.02f);
             break;
         case GLFW_KEY_EQUAL:
         case GLFW_KEY_KP_ADD:

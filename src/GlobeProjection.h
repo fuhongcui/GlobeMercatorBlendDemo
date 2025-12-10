@@ -1,6 +1,6 @@
 #pragma once
-#include "Math.h"
-#include <algorithm>
+#include "Constants.h"
+#include <glm/glm.hpp>
 
 class GlobeProjection
 {
@@ -35,7 +35,7 @@ public:
      * 2. 应用缩放使 Globe 半径与 Mercator worldScale 匹配
      * 3. 旋转顺序：translate -> rotateX(lat) -> rotateY(-lon) -> scale
      */
-    Math::Mat4 calculateGlobeMatrix(float aspect) const;
+    glm::mat4 calculateGlobeMatrix(float aspect) const;
     
     /**
      * 计算 Mercator 投影矩阵
@@ -45,7 +45,7 @@ public:
      * 2. worldScale 与 Globe 半径匹配，确保屏幕大小一致
      * 3. 支持 wrap 参数，用于渲染不同世界副本的 tile
      */
-    Math::Mat4 calculateMercatorMatrix(int tileX, int tileY, int tileZ, int wrap, float aspect) const;
+    glm::mat4 calculateMercatorMatrix(int tileX, int tileY, int tileZ, int wrap, float aspect) const;
     
     /**
      * 计算 Tile 的墨卡托坐标（归一化 0..1）
@@ -53,7 +53,7 @@ public:
      * 返回值：[offsetX, offsetY, scaleX, scaleY]
      * 用于 shader 中将 tile 坐标转换为归一化墨卡托坐标
      */
-    Math::Vec4 calculateTileMercatorCoords(int tileX, int tileY, int tileZ, int wrap) const;
+    glm::vec4 calculateTileMercatorCoords(int tileX, int tileY, int tileZ, int wrap) const;
     
     /**
      * 动态 Wrap 选择（maplibre 核心算法）
@@ -78,5 +78,5 @@ public:
      * 用于 Globe 模式下隐藏背面几何体
      * 返回平面方程：[nx, ny, nz, d]，其中 dot(pos, [nx,ny,nz]) + d = 0
      */
-    Math::Vec4 calculateClippingPlane() const;
+    glm::vec4 calculateClippingPlane() const;
 };
