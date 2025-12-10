@@ -57,7 +57,6 @@ void TileRenderer::render(const GlobeProjection& projection, float aspect)
     else
     {
         // Globe 过渡模式：为每个 tile 动态选择最接近 center 的 wrap
-        // Globe 部分使用 fract() 归一化，所有 wrap 投影到相同位置（深度测试处理重叠）
         // Mercator 部分需要正确的 wrap 来确保对齐
         for (int tileY = 0; tileY < numTiles; tileY++)
         {

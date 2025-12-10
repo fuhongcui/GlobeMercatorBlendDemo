@@ -20,8 +20,6 @@ uniform vec4 u_projection_clipping_plane;      // 裁剪平面（用于 Globe �
 
 /**
  * 将 tile 坐标转换为单位球面坐标
- * 
- * 与 maplibre 完全一致：不使用 fract()，直接使用 mercator_pos
  * maplibre 通过 tile 选择层面的 wrap 控制来避免重复，而不是在 shader 中归一化
  */
 vec3 projectToSphere(vec2 posInTile) {
