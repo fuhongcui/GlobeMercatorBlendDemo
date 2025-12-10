@@ -70,7 +70,9 @@ void TileRenderer::render(const GlobeProjection& projection, float aspect)
     }
 #if 1
     // 绘制网格线
+    glDepthFunc(GL_LEQUAL); // 允许与填充面同深度的线通过
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glLineWidth(2.0f);
     if (projection.transition < 0.001f)
     {
         for (int wrap = -1; wrap <= 1; wrap++)
@@ -90,6 +92,7 @@ void TileRenderer::render(const GlobeProjection& projection, float aspect)
         }
     }
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    glDepthFunc(GL_LESS); // 恢复默认深度测试
 #endif
 }
 
